@@ -92,19 +92,6 @@ body[data-on="false"] .progress, body[data-on="false"] .time, body[data-on="fals
 .note[hidden] { display: none; }
 .note .link { text-decoration: underline; }
 
-/* Start screen */
-.power-screen {
-  position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 16px; text-align: center;
-  background: linear-gradient(180deg, rgb(0 0 0 / 0.15), rgb(0 0 0 / 0.55)), var(--backdrop, #111) center / cover no-repeat;
-  color: #fff;
-}
-.power-screen[hidden] { display: none; }
-.power-screen .note, .power-screen .link { color: rgb(255 255 255 / 0.88); text-shadow: 0 1px 6px rgb(0 0 0 / 0.6); }
-.start {
-  font-size: 18px; font-weight: 600; padding: 14px 44px; border: 1px solid #fff; border-radius: 999px; color: #fff;
-  background: rgb(0 0 0 / 0.25); backdrop-filter: blur(6px);
-}
-.start:hover { background: #fff; color: #111; }
 
 /* Phones: one screen, no page scroll. Artwork behind, song in the middle, big touch
    controls, Spotify bar, and a swipeable strip of station cards at the bottom. */
@@ -159,8 +146,6 @@ body[data-on="false"] .progress, body[data-on="false"] .time, body[data-on="fals
 /* Brand: radio-tower mark + name */
 .wordmark { display: inline-flex; align-items: center; gap: 8px; }
 .mark { width: 20px; height: 26px; flex: none; }
-.brand { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font-size: clamp(34px, 7vw, 60px); font-weight: 800; letter-spacing: -0.03em; color: #fff; text-shadow: 0 4px 30px rgb(0 0 0 / 0.55); }
-.brand .mark { width: 0.8em; height: 1.04em; filter: drop-shadow(0 4px 20px rgb(0 0 0 / 0.5)); }
 
 /* "Play in the Spotify app" link */
 .app-link { display: inline-block; margin-top: 10px; text-decoration: underline; text-underline-offset: 3px; }
@@ -235,20 +220,10 @@ body[data-on="false"] .row { visibility: hidden; }
 .warning[hidden] { display: none; }
 .warning .link { color: #fff; text-decoration: underline; }
 
-.power-screen {
-  position: fixed; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 10px;
-  background: linear-gradient(rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.5)), var(--backdrop, #111) center / cover no-repeat;
-}
-.power-screen[hidden] { display: none; }
-.start { font-size: 15px; font-weight: 600; padding: 9px 30px; border: 1px solid #fff; border-radius: 999px; color: #fff; background: rgb(0 0 0 / 0.25); }
-.start:hover { background: #fff; color: #111; }
-.power-screen .link { color: rgb(255 255 255 / 0.88); font-size: 12px; }
 
 @media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
 
 .mark { width: 20px; height: 26px; flex: none; }
-.brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; color: #fff; text-shadow: 0 3px 18px rgb(0 0 0 / 0.6); }
-.brand .mark { width: 0.8em; height: 1.04em; }
 </style>
 </head>
 <body data-on="false">
@@ -290,13 +265,7 @@ body[data-on="false"] .row { visibility: hidden; }
       <p id="preview-warning" class="note" hidden>Only 30-second previews. <button class="link" data-action="login">Log in to Spotify</button> for full songs.</p>
       <a id="open-station" class="note link app-link" target="_blank" rel="noopener" hidden></a>
     </section>
-  </main>
-
-  <div id="power-screen" class="power-screen">
-    <p class="brand"><svg class="mark" viewBox="12 7 40 51" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 15a12.7 12.7 0 0 0 0 14M41 15a12.7 12.7 0 0 1 0 14" stroke-width="2.8"/><path d="M17 10a20 20 0 0 0 0 24M47 10a20 20 0 0 1 0 24" stroke-width="2.8" opacity=".7"/><path d="M32 26 22 56M32 26l10 30M24.7 48h14.6M26.7 40h10.6M28.6 33h6.8M24.7 48l12.6-8M39.3 48l-12.6-8M26.7 40l8.7-7M37.3 40l-8.7-7" stroke-width="2.4"/></g><circle cx="32" cy="22" r="3.6" fill="currentColor"/></svg><span>Theft Radio</span></p>
-    <button id="power" class="start">Start</button>
-    <p class="note">Full songs need a Spotify login in this browser. <button class="link" data-action="login">Log in</button></p>
-  </div></template>
+  </main></template>
 <template id="tpl-mini"><div id="bg" class="bg" aria-hidden="true"></div>
   <div class="scrim" aria-hidden="true"></div>
 
@@ -329,11 +298,6 @@ body[data-on="false"] .row { visibility: hidden; }
   <p id="login-status" class="warning" hidden></p>
   <p id="preview-warning" class="warning" hidden>Previews only · <button class="link" data-action="login">Log in to Spotify</button></p>
 
-  <div id="power-screen" class="power-screen">
-    <p class="brand"><svg class="mark" viewBox="12 7 40 51" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 15a12.7 12.7 0 0 0 0 14M41 15a12.7 12.7 0 0 1 0 14" stroke-width="2.8"/><path d="M17 10a20 20 0 0 0 0 24M47 10a20 20 0 0 1 0 24" stroke-width="2.8" opacity=".7"/><path d="M32 26 22 56M32 26l10 30M24.7 48h14.6M26.7 40h10.6M28.6 33h6.8M24.7 48l12.6-8M39.3 48l-12.6-8M26.7 40l8.7-7M37.3 40l-8.7-7" stroke-width="2.4"/></g><circle cx="32" cy="22" r="3.6" fill="currentColor"/></svg><span>Theft Radio</span></p>
-    <button id="power" class="start">Start</button>
-    <button class="link" data-action="login">Spotify login</button>
-  </div>
 
   <div hidden><span id="np-genre"></span><span id="np-next"></span></div></template>
 <script>
@@ -416,6 +380,7 @@ function locate(program, nowMs) {
 function createPlayer(wrapEl, onUpdate) {
   let api = null;
   let ctl = null;
+  let queued = null;
   let state = { uri: null, position: 0, duration: 0, isPaused: true, isBuffering: false };
   const listeners = new Set([onUpdate]);
   let resolveApi;
@@ -433,6 +398,8 @@ function createPlayer(wrapEl, onUpdate) {
           listeners.forEach((fn) => fn(state));
         });
         resolve();
+        // a play() that came in before the player existed (first tap right after page load)
+        if (queued) { const u = queued; queued = null; player.play(u); }
       });
     });
   }
@@ -448,12 +415,12 @@ function createPlayer(wrapEl, onUpdate) {
     ready,
     get state() { return state; },
     play(uri) {
-      if (!ctl) return;
+      if (!ctl) { queued = uri; return; }
       state = { ...state, uri, position: 0, duration: 0, isPaused: true };
       ctl.loadUri(uri);
       ctl.play();
     },
-    pause() { ctl && ctl.pause(); },
+    pause() { queued = null; ctl && ctl.pause(); },
     async reload() {
       await ready;
       try { ctl && ctl.destroy(); } catch { /* already gone */ }
@@ -641,7 +608,7 @@ function render() {
     if (app.getAttribute('href') !== href) {
       app.href = href;
       app.textContent = s.playlist
-        ? `Play ${s.name} in the Spotify app ↗` + (s.playlist.official || s.playlist.ours ? "" : " (fan playlist)")
+        ? `Play ${s.name} in the Spotify app ↗`
         : 'Open this song in the Spotify app ↗';
     }
     app.hidden = false;
@@ -702,10 +669,8 @@ on('next', 'click', () => step(1));
 on('skip', 'click', next);
 on('toggle', 'click', toggle);
 
-// Phones: say up front that Spotify only gives previews in an embedded player there.
+// Phones: the login buttons can't help there (Spotify's embed is preview-only on mobile).
 if (isPhone) {
-  const note = document.querySelector('#power-screen .note');
-  if (note) note.textContent = "On phones this plays 30-second previews (Spotify's limit). Tap \"Play in the Spotify app\" for full songs.";
   document.querySelectorAll('[data-action="login"]').forEach((b) => { if (!b.closest('#preview-warning')) b.hidden = true; });
 }
 
@@ -725,13 +690,6 @@ if (now) {
   }, { passive: true });
 }
 
-// Start screen: browsers only allow audio after a click.
-on('power', 'click', () => {
-  $('power-screen').hidden = true;
-  player.ready.then(() => tune(lastIndex()));
-});
-
-// Spotify login: popup on accounts.spotify.com; when it closes, reload so the embed picks up the login.
 // Spotify login: opens accounts.spotify.com in a small window. While it's open the music pauses
 // and every few seconds the player is rebuilt and asked for the current song: once Spotify hands
 // back a full-length track (not a 30 s preview) the login worked, so the window closes itself and
@@ -747,7 +705,6 @@ async function spotifyLogin() {
   const w = window.open('https://accounts.spotify.com/login?continue=https%3A%2F%2Fopen.spotify.com%2F',
     'spotifyLogin', 'popup,width=480,height=720');
   if (!w) { setStatus('The browser blocked the login window. Allow pop-ups for this page and press Spotify login again.'); return; }
-  if ($('power-screen')) $('power-screen').hidden = true;
   await player.ready;
   if (current < 0) tune(lastIndex());
   loggingIn = true;
@@ -787,14 +744,6 @@ on('popout', 'click', () => {
 
 if (document.body.dataset.page === 'mini' && (matchMedia('(display-mode: standalone)').matches || window.opener || !window.toolbar.visible)) {
   try { window.resizeTo(480, 300); } catch { /* not allowed here */ }
-}
-
-// Start screen backdrop (the radio's own key art).
-if (data.backdrop && $('power-screen')) {
-  // absolute URL: a relative one inside a CSS variable resolves against the stylesheet's folder
-  const src = data.backdrop.startsWith('data:') ? data.backdrop : new URL(data.backdrop, location.href).href;
-  $('power-screen').style.setProperty('--backdrop', `url("${src}")`);
-  $('power-screen').classList.add('has-backdrop');
 }
 
 setInterval(render, 1000);
