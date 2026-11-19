@@ -39,31 +39,14 @@ p { margin: 0; }
     linear-gradient(0deg, rgb(var(--shade) / 0.55) 0%, rgb(var(--shade) / 0) 40%);
 }
 
-.bar { position: relative; display: flex; justify-content: space-between; align-items: baseline; padding: 20px 28px; }
+.bar { position: relative; z-index: 6; display: flex; justify-content: space-between; align-items: baseline; padding: 20px 28px; }
 .wordmark { font-weight: 600; letter-spacing: -0.01em; }
 .actions { display: flex; gap: 20px; font-size: 13px; }
 
 .layout {
-  position: relative; display: grid; grid-template-columns: 260px minmax(0, 620px); gap: 48px;
+  position: relative; display: grid; grid-template-columns: minmax(0, 640px); gap: 48px;
   height: calc(100vh - 66px); padding: 0 28px 28px;
 }
-
-/* Station list: frosted panel */
-.list {
-  overflow-y: auto; scrollbar-width: thin; border-radius: 14px; padding: 6px;
-  background: var(--glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
-}
-.station {
-  display: grid; grid-template-columns: 36px 1fr; align-items: center; gap: 10px;
-  width: 100%; padding: 7px 8px; text-align: left; border-radius: 8px;
-}
-.station:hover, .station:focus-visible { background: var(--glass-hover); outline: none; }
-.station .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c); justify-self: center; }
-.station .thumb { width: 36px; height: 20px; border-radius: 3px; object-fit: cover; }
-.station .name { font-size: 14px; line-height: 1.2; }
-.station .genre { display: none; }
-.station.active { background: var(--glass-hover); }
-.station.active .name { font-weight: 650; }
 
 /* Now playing, on the artwork */
 .now {
@@ -94,7 +77,7 @@ body[data-on="false"] .progress, body[data-on="false"] .time, body[data-on="fals
 
 
 /* Phones: one screen, no page scroll. Artwork behind, song in the middle, big touch
-   controls, Spotify bar, and a swipeable strip of station cards at the bottom. */
+   controls and the Spotify bar. */
 @media (max-width: 760px) {
   .bar { padding: calc(12px + env(safe-area-inset-top)) 16px 8px; }
   #popout { display: none; }
@@ -102,7 +85,7 @@ body[data-on="false"] .progress, body[data-on="false"] .time, body[data-on="fals
   .scrim { background: linear-gradient(0deg, rgb(var(--shade) / 0.92) 0%, rgb(var(--shade) / 0.7) 45%, rgb(var(--shade) / 0.15) 75%, rgb(var(--shade) / 0.35) 100%); }
 
   .layout {
-    grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; gap: 0;
+    grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr); gap: 0;
     height: calc(100dvh - 48px - env(safe-area-inset-top)); padding: 0 0 env(safe-area-inset-bottom);
   }
   .now { order: 1; padding: 0 16px 8px; touch-action: pan-y; }
@@ -122,20 +105,6 @@ body[data-on="false"] .progress, body[data-on="false"] .time, body[data-on="fals
   .next { display: none; }
   .embed, .now iframe { margin-top: 12px; }
 
-  /* Station strip */
-  .list {
-    order: 2; display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; border-radius: 0;
-    padding: 10px 16px 12px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  }
-  .list::-webkit-scrollbar { display: none; }
-  .station {
-    flex: 0 0 96px; display: flex; flex-direction: column; align-items: stretch; gap: 5px;
-    padding: 0; border-radius: 0; background: none !important; scroll-snap-align: center;
-  }
-  .station .thumb, .station .dot { width: 96px; height: 54px; border-radius: 8px; justify-self: auto; }
-  .station .dot { background: var(--c); opacity: 0.6; }
-  .station .name { font-size: 11px; line-height: 1.2; text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .station.active .thumb, .station.active .dot { outline: 2px solid var(--fg); outline-offset: 2px; }
 }
 @media (max-width: 760px) and (max-height: 640px) {
   .genre, .artist { display: none; }
@@ -158,6 +127,68 @@ body[data-on="false"] .progress, body[data-on="false"] .time, body[data-on="fals
   }
   .note:not(.app-link) { font-size: 12px; }
 }
+
+/* ---------- Gallery: shown while nothing is playing ---------- */
+.gallery {
+  position: fixed; top: 66px; left: 0; right: 0; bottom: 0; z-index: 5; overflow-y: auto; scrollbar-width: thin;
+  padding: 8px 28px 40px; color: #fff;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.7) 40%);
+}
+body[data-on="true"] .gallery { display: none; }
+.gallery-head { display: flex; align-items: baseline; gap: 14px; margin: 6px 0 18px; text-shadow: 0 2px 14px rgb(0 0 0 / 0.6); }
+.gallery-title { margin: 0; font-size: clamp(28px, 4vw, 44px); font-weight: 750; letter-spacing: -0.03em; }
+.gallery-sub { color: rgb(255 255 255 / 0.75); font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+.card {
+  display: flex; flex-direction: column; text-align: left; border-radius: 14px; overflow: hidden;
+  background: rgb(18 14 26 / 0.62); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.10); transition: transform 0.15s ease-out, border-color 0.15s;
+}
+.card:hover, .card:focus-visible { transform: translateY(-3px); border-color: var(--c); outline: none; }
+.card-art { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.card-blank { background: var(--c); opacity: 0.5; }
+.card-text { display: grid; gap: 2px; padding: 10px 12px 12px; }
+.card-name { font-weight: 650; font-size: 15px; line-height: 1.2; }
+.card-genre { font-size: 12px; color: rgb(255 255 255 / 0.65); }
+
+/* ---------- Radio wheel: hold Q / Stations button ---------- */
+.wheel {
+  position: fixed; inset: 0; z-index: 10; display: grid; place-items: center;
+  background: rgb(0 0 0 / 0.62); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  --ring: min(86vmin, 600px); --slot: calc(var(--ring) * 0.115);
+}
+.wheel[hidden] { display: none; }
+.wheel-ring { position: relative; width: var(--ring); height: var(--ring); border-radius: 50%; }
+.slot {
+  position: absolute; left: 50%; top: 50%; width: var(--slot); height: var(--slot);
+  margin: calc(var(--slot) / -2) 0 0 calc(var(--slot) / -2);
+  translate: calc(var(--x) * (var(--ring) / 2 - var(--slot) * 0.62)) calc(var(--y) * (var(--ring) / 2 - var(--slot) * 0.62));
+  border-radius: 50%; overflow: hidden; border: 2px solid rgb(255 255 255 / 0.25); background: #15121c; color: #fff;
+  display: grid; place-items: center; transition: scale 0.12s ease-out, border-color 0.12s, box-shadow 0.12s;
+}
+.slot img { width: 100%; height: 100%; object-fit: cover; }
+.slot svg { width: 46%; height: 46%; }
+.slot.current { border-color: var(--c); }
+.slot.hover { scale: 1.22; border-color: #fff; box-shadow: 0 0 0 3px var(--c), 0 0 26px var(--c); z-index: 1; }
+.wheel-center { position: absolute; inset: 28%; display: grid; place-content: center; text-align: center; color: #fff; pointer-events: none; }
+.wheel-name { font-size: clamp(16px, 3.4vmin, 28px); font-weight: 750; letter-spacing: -0.02em; text-shadow: 0 2px 12px rgb(0 0 0 / 0.7); }
+.wheel-genre { font-size: clamp(11px, 1.8vmin, 14px); color: rgb(255 255 255 / 0.7); margin-top: 4px; }
+.wheel-hint { position: absolute; bottom: 24px; color: rgb(255 255 255 / 0.6); font-size: 13px; }
+
+@media (max-width: 760px) {
+  .gallery { top: calc(48px + env(safe-area-inset-top)); padding: 4px 14px 28px; }
+  .gallery-head { flex-direction: column; gap: 2px; margin-bottom: 12px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .card { border-radius: 12px; }
+  .card-text { padding: 8px 10px 10px; }
+  .card-name { font-size: 13.5px; }
+  .card-genre { font-size: 11px; }
+  .wheel { --ring: min(94vw, 420px); --slot: calc(var(--ring) * 0.12); }
+  .wheel-hint { font-size: 12px; }
+}
+
+/* While the gallery is up, the player underneath stays loaded (Spotify iframe) but unseen. */
+body[data-on="false"] .now { visibility: hidden; }
 </style>
 <style id="css-mini" media="not all">/* Mini player: the station artwork is the background, text on top. */
 :root {
@@ -239,8 +270,6 @@ body[data-on="false"] .row { visibility: hidden; }
   </header>
 
   <main class="layout">
-    <div id="list" class="list" aria-label="Stations"></div>
-
     <section class="now" aria-live="polite">
       <p id="np-station" class="logo">Theft Radio</p>
       <p id="np-genre" class="genre"></p>
@@ -253,7 +282,7 @@ body[data-on="false"] .row { visibility: hidden; }
         <span id="np-time" class="time"></span>
         <span class="controls">
           <button id="prev" class="link" aria-label="Previous station">Prev</button>
-          <button id="toggle" class="link" aria-label="Radio on/off">On / Off</button>
+          <button id="stations" class="link" aria-label="Choose station" title="Hold Q">Stations</button>
           <button id="skip" class="link" aria-label="Next song">Skip</button>
           <button id="next" class="link" aria-label="Next station">Next</button>
         </span>
@@ -265,7 +294,24 @@ body[data-on="false"] .row { visibility: hidden; }
       <p id="preview-warning" class="note" hidden>Only 30-second previews. <button class="link" data-action="login">Log in to Spotify</button> for full songs.</p>
       <a id="open-station" class="note link app-link" target="_blank" rel="noopener" hidden></a>
     </section>
-  </main></template>
+  </main>
+
+  <!-- Nothing playing: pick a station from the gallery -->
+  <section id="gallery" class="gallery" aria-label="Stations">
+    <div class="gallery-head">
+      <h1 class="gallery-title">Pick a station</h1>
+      <p class="gallery-sub" id="station-count"></p>
+    </div>
+    <div id="gallery-grid" class="grid"></div>
+  </section>
+
+  <!-- Playing: radio wheel to switch (hold Q, or the Stations button) -->
+  <div id="wheel" class="wheel" hidden>
+    <div id="wheel-ring" class="wheel-ring" role="group" aria-label="Radio wheel">
+      <div class="wheel-center"><p id="wheel-name" class="wheel-name"></p><p id="wheel-genre" class="wheel-genre"></p></div>
+    </div>
+    <p class="wheel-hint">Release Q, or tap a station</p>
+  </div></template>
 <template id="tpl-mini"><div id="bg" class="bg" aria-hidden="true"></div>
   <div class="scrim" aria-hidden="true"></div>
 
@@ -441,29 +487,90 @@ function createPlayer(wrapEl, onUpdate) {
   return player;
 }
 
-// Plain station list: one row per station (optional artwork, name, genre).
+// Station gallery (shown while nothing is playing): one card per station with its
+// artwork, name and genre. Tapping a card tunes in.
 
-function createList(root, stations, { onPick }) {
+function createGallery(root, stations, { onPick }) {
   stations.forEach((s, i) => {
     const b = document.createElement('button');
-    b.className = 'station';
+    b.className = 'card';
     b.style.setProperty('--c', s.color);
-    b.innerHTML = (s.art ? `<img class="thumb" src="${s.art}" alt="">` : '<span class="dot"></span>') +
-      `<span class="name"></span><span class="genre"></span>`;
-    b.querySelector('.name').textContent = s.name;
-    b.querySelector('.genre').textContent = s.genre;
+    b.innerHTML = (s.art ? '<img class="card-art" alt="" loading="lazy">' : '<span class="card-art card-blank"></span>') +
+      '<span class="card-text"><span class="card-name"></span><span class="card-genre"></span></span>';
+    if (s.art) b.querySelector('img').src = s.art;
+    b.querySelector('.card-name').textContent = s.name;
+    b.querySelector('.card-genre').textContent = s.genre;
     b.addEventListener('click', () => onPick(i));
     root.appendChild(b);
   });
+}
+
+// Radio wheel, GTA style: station thumbnails on a ring, "off" at the top.
+// Desktop: hold Q, point at a station, release to tune in (or click).
+// Phones: tap the Stations button, then tap a station; tapping outside closes it.
+
+function createWheel(root, ring, stations, { onPick, getCurrent }) {
+  const slots = [{ off: true, name: 'Radio off', genre: 'Back to all stations' }, ...stations];
+  const n = slots.length;
+  let hovered = null;
+  const nameEl = document.getElementById('wheel-name');
+  const genreEl = document.getElementById('wheel-genre');
+
+  const buttons = slots.map((s, k) => {
+    const a = (k / n) * Math.PI * 2 - Math.PI / 2;
+    const b = document.createElement('button');
+    b.className = 'slot' + (s.off ? ' slot-off' : '');
+    b.style.setProperty('--x', Math.cos(a).toFixed(4));
+    b.style.setProperty('--y', Math.sin(a).toFixed(4));
+    b.style.setProperty('--c', s.color || '#fff');
+    b.setAttribute('aria-label', s.name);
+    b.innerHTML = s.off
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8M6.3 6.6a8 8 0 1 0 11.4 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
+      : (s.art ? '<img alt="">' : '');
+    if (s.art) b.querySelector('img').src = s.art;
+    b.addEventListener('pointerenter', () => highlight(k));
+    b.addEventListener('focus', () => highlight(k));
+    b.addEventListener('click', (e) => { e.stopPropagation(); choose(k); });
+    ring.appendChild(b);
+    return b;
+  });
+
+  function highlight(k) {
+    hovered = k;
+    buttons.forEach((b, j) => b.classList.toggle('hover', j === k));
+    const s = slots[k];
+    nameEl.textContent = s.name;
+    genreEl.textContent = s.genre;
+  }
+
+  function choose(k) {
+    close();
+    onPick(k - 1); // slot 0 = off (-1)
+  }
+
+  function open() {
+    if (!root.hidden) return;
+    root.hidden = false;
+    const cur = getCurrent();
+    buttons.forEach((b, j) => b.classList.toggle('current', j === cur + 1));
+    highlight(cur + 1);
+  }
+
+  function close() { root.hidden = true; }
+
+  // Tapping the dark area around the ring closes it without changing station.
+  root.addEventListener('click', (e) => { if (!e.target.closest('.slot')) close(); });
 
   return {
-    select(i) {
-      [...root.children].forEach((el, k) => {
-        el.classList.toggle('active', k === i);
-        el.setAttribute('aria-pressed', k === i);
-      });
-      // vertical list on desktop, horizontal strip on phones: keep the active card in view either way
-      root.children[i]?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    open,
+    close,
+    get isOpen() { return !root.hidden; },
+    /** Releasing Q tunes to whatever the pointer is on (if it moved off the current station). */
+    commit() {
+      if (root.hidden) return;
+      const cur = getCurrent() + 1;
+      if (hovered !== null && hovered !== cur) choose(hovered);
+      else close();
     },
   };
 }
@@ -473,6 +580,7 @@ function createList(root, stations, { onPick }) {
 //
 // Tuning in picks the song that is "on air" by the clock (so stations still feel live),
 // but always starts it from 0:00, then plays the station on in order.
+
 
 
 
@@ -502,7 +610,8 @@ let loggingIn = false;
 const isPhone = matchMedia('(pointer: coarse)').matches && matchMedia('(max-width: 900px)').matches;
 
 const player = createPlayer($('embed'), onPlayerUpdate);
-const list = $('list') ? createList($('list'), stations, { onPick: tune }) : null;
+if ($('gallery-grid')) createGallery($('gallery-grid'), stations, { onPick: tune });
+const wheel = $('wheel') ? createWheel($('wheel'), $('wheel-ring'), stations, { onPick: tune, getCurrent: () => current }) : null;
 
 const select = $('station-select');
 if (select) {
@@ -518,7 +627,6 @@ function tune(i) {
   if (i === current) return;
   current = i;
   if (i >= 0) store.set(LAST_KEY, stations[i].id);
-  list?.select(i);
   if (select) select.value = String(i);
   if (i < 0) { player.pause(); render(); return; }
   idx = locate(prog(), Date.now()).index;
@@ -655,9 +763,11 @@ function lastIndex() {
   return i >= 0 ? i : 0;
 }
 
-// Keyboard: ↑/↓ or ←/→ step stations, N = next song, Space = off/on.
+// Keyboard: hold Q = radio wheel, ↑/↓ or ←/→ step stations, N = next song, Space = off/on, Esc closes the wheel.
 document.addEventListener('keydown', (e) => {
-  if (e.target.closest('input, textarea, select')) return;
+  if (e.target.closest?.('input, textarea, select')) return;
+  if (e.key === 'q' || e.key === 'Q') { if (!e.repeat) wheel?.open(); return; }
+  if (e.key === 'Escape') { wheel?.close(); return; }
   if (['ArrowDown', 'ArrowRight'].includes(e.key)) { e.preventDefault(); step(1); }
   else if (['ArrowUp', 'ArrowLeft'].includes(e.key)) { e.preventDefault(); step(-1); }
   else if (e.key === 'n') next();
@@ -668,9 +778,13 @@ on('prev', 'click', () => step(-1));
 on('next', 'click', () => step(1));
 on('skip', 'click', next);
 on('toggle', 'click', toggle);
+on('stations', 'click', () => wheel?.open());
+document.addEventListener('keyup', (e) => { if (e.key === 'q' || e.key === 'Q') wheel?.commit(); });
 
 // Phones: the login buttons can't help there (Spotify's embed is preview-only on mobile).
 if (isPhone) {
+  const hint = document.querySelector('.wheel-hint');
+  if (hint) hint.textContent = 'Tap a station';
   document.querySelectorAll('[data-action="login"]').forEach((b) => { if (!b.closest('#preview-warning')) b.hidden = true; });
 }
 
@@ -746,6 +860,7 @@ if (document.body.dataset.page === 'mini' && (matchMedia('(display-mode: standal
   try { window.resizeTo(480, 300); } catch { /* not allowed here */ }
 }
 
+setText('station-count', `${stations.length} stations · ${stations.reduce((t, s) => t + s.songs.filter((x) => x.uri).length, 0)} songs`);
 setInterval(render, 1000);
 render();
 
