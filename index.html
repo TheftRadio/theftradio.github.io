@@ -671,6 +671,8 @@ let maxPos = 0;   // furthest position reported for the current song
 let advancing = false;
 let previewWarned = false;
 let loggingIn = false;
+let userPaused = false;
+let lastProgressAt = 0;
 const isPhone = matchMedia('(pointer: coarse)').matches && matchMedia('(max-width: 900px)').matches;
 
 const player = createPlayer($('embed'), onPlayerUpdate);
@@ -701,9 +703,12 @@ function tune(i) {
 
 function playCurrent() {
   startedAt = performance.now();
+  lastProgressAt = startedAt;
   maxPos = 0;
+  userPaused = false;
   advancing = false;
   player.play(song().uri);
+  announcePlaying();
   render();
 }
 
@@ -711,7 +716,9 @@ function next() {
   if (current < 0 || advancing) return;
   advancing = true;
   idx = (idx + 1) % prog().songs.length;
-  setTimeout(playCurrent, 600); // a breath between songs
+  // A breath between songs, but not in a background tab: Chrome stretches timers there,
+  // which turned the 0.6 s gap into up to a minute of silence.
+  if (document.hidden) playCurrent(); else setTimeout(playCurrent, 600);
 }
 
 function onPlayerUpdate(st) {
@@ -729,22 +736,40 @@ function onPlayerUpdate(st) {
       w.hidden = false;
     }
   }
+  if (!st.isPaused && st.position > maxPos) lastProgressAt = performance.now();
   maxPos = Math.max(maxPos, st.position);
+  // Paused mid-song (by you in the Spotify bar, or Spotify moving playback to another device):
+  // remember it, so a later reset of the embed to 0:00 is not mistaken for the song ending.
+  const midSong = st.duration > 0 && st.position > 1 && st.duration - st.position > 3;
+  if (st.isPaused && midSong) userPaused = true;
+  if (!st.isPaused) userPaused = false;
   // A track has ended when it reaches its length, or when the embed stops right at the end
   // or jumps back to 0 after playing (both happen, depending on the track).
   const atEnd = st.duration > 0 && st.position >= st.duration - 0.5;
-  const stoppedAtEnd = st.isPaused && maxPos > 5 && (st.position < 1 || st.duration - st.position < 3);
+  const stoppedAtEnd = !userPaused && st.isPaused && maxPos > 5 && (st.position < 1 || st.duration - st.position < 3);
   if (atEnd || stoppedAtEnd) next();
   render();
 }
 
-// Safety net: if the embed goes quiet, move on once the song's length has clearly passed.
+// Safety net: if the embed is supposedly playing but has stopped reporting progress for a while
+// after the song's length has passed, move on. Never while paused: a paused song is not a stuck one.
 setInterval(() => {
-  if (current < 0 || advancing || loggingIn) return;
+  if (current < 0 || advancing || loggingIn || userPaused || player.state.isPaused) return;
   const elapsed = (performance.now() - startedAt) / 1000;
   const len = player.state.duration || song().dur || 240;
-  if (elapsed > len + 4) next();
+  const silentFor = (performance.now() - lastProgressAt) / 1000;
+  if (elapsed > len + 4 && silentFor > 6) next();
 }, 2000);
+
+// Only one Theft Radio may play at a time: Spotify allows one stream per account, so two open
+// players (full page + mini player, or two tabs) take the stream from each other mid-song.
+// When one starts playing, the others turn themselves off.
+const channel = 'BroadcastChannel' in window ? new BroadcastChannel('theft-radio') : null;
+const myId = Math.random().toString(36).slice(2);
+function announcePlaying() { channel?.postMessage({ type: 'playing', from: myId }); }
+channel?.addEventListener('message', (e) => {
+  if (e.data?.type === 'playing' && e.data.from !== myId && current >= 0) tune(-1);
+});
 
 function render() {
   const isOn = current >= 0;
